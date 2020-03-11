@@ -108,7 +108,7 @@ public abstract class GraphFunctions {
         return vertices.stream().allMatch(vertex -> vertex.visited);
     }
 
-    public static <V, E> int connectedComponents(AbstractGraph<V, E> graph) {
+    public static <V, E> int numberOfComponents(AbstractGraph<V, E> graph) {
         graph.clearVisit();
         return pathCount(graph);
     }
@@ -143,16 +143,16 @@ public abstract class GraphFunctions {
         return components != pathCount(graph);
     }
 
-    public static <V, E> boolean isBridge(AbstractGraph<V, E> graph, V nodeA, V nodeB) {
-        Optional<AbstractGraph<V, E>.Edge> edge = graph.getEdge(nodeA, nodeB);
+    public static <V, E> boolean isBridge(AbstractGraph<V, E> graph, V originNode, V destinationNode) {
+        Optional<AbstractGraph<V, E>.Edge> edge = graph.getEdge(originNode, destinationNode);
 
         if (!edge.isPresent()) {
             return false;
         }
-        int components = connectedComponents(graph);
-        graph.disconnectNodes(nodeA, nodeB);
-        int newComponents = connectedComponents(graph);
-        graph.connectNodes(nodeA, nodeB, edge.get().connection);
+        int components = numberOfComponents(graph);
+        graph.disconnectNodes(originNode, destinationNode);
+        int newComponents = numberOfComponents(graph);
+        graph.connectNodes(originNode, destinationNode, edge.get().connection);
         return components != newComponents;
     }
 }

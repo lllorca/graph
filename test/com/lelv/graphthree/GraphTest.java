@@ -21,5 +21,6 @@ public class GraphTest {
         assertEquals(2, graph.degree("b"));
         assertEquals(2, graph.degree("c"));
         assertEquals(1, graph.degree("d"));
+        assertEquals(Graph.NON_EXISTENT_DEGREE, graph.degree("e"));
     }
 }

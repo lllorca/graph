@@ -123,7 +123,6 @@ public abstract class AbstractGraph<V, E> {
             return false;
         }
 
-
         return originVertex.edges.stream()
                                  .filter(edge -> edge.neighbor.node.equals(destinationNode))
                                  .findFirst()
