@@ -1,9 +1,19 @@
 package com.lelv.graphthree;
 
+import com.lelv.graphthree.impl.Graph;
+
 import java.util.*;
 
 public abstract class GraphFunctions {
 
+
+    /**
+     * Applies a Depth First Search on a graph, taking the originNode as the root
+     *
+     * @param graph      the graph on which to apply the algorithm
+     * @param originNode the node to take as root of the search
+     * @return list of nodes that result from doing DFS
+     */
     public static <V, E> List<V> dfs(AbstractGraph<V, E> graph, V originNode) {
         Optional<AbstractGraph<V, E>.Vertex> vertex = graph.getVertex(originNode);
         if (!vertex.isPresent())
@@ -23,6 +33,13 @@ public abstract class GraphFunctions {
             dfs(neighbor, result);
     }
 
+    /**
+     * Applies a Breadth First Search on a graph, taking the originNode as the root
+     *
+     * @param graph      the graph on which to apply the algorithm
+     * @param originNode the node to take as root of the search
+     * @return list of nodes that result from doing BFS
+     */
     public static <V, E> List<V> bfs(AbstractGraph<V, E> graph, V originNode) {
         Optional<AbstractGraph<V, E>.Vertex> optional = graph.getVertex(originNode);
         if (!optional.isPresent())
@@ -36,18 +53,26 @@ public abstract class GraphFunctions {
         q.add(vertex);
         while (!q.isEmpty()) {
             vertex = q.poll();
+            vertex.visited = true;
             result.add(vertex.node);
             for (AbstractGraph<V, E>.Edge e : vertex.edges) {
                 if (!e.destination.visited) {
                     q.add(e.destination);
-                    e.destination.visited = true;
                 }
             }
         }
         return result;
     }
 
-    public static <V, E extends WeightedEdge> HashMap<V, Double> dijkstra(AbstractGraph<V, E> graph, V originNode) {
+    /**
+     * Applies Dijkstra's Shortest Path First algorithm on the graph
+     *
+     * @param graph      the graph on which to apply the algorithm
+     * @param originNode the node to take as root of the search
+     * @return a map whose keys are the nodes, and whose values are the weight of the shortest distance
+     * to the node from the root.
+     */
+    public static <V, E extends WeightedEdge> Map<V, Double> dijkstra(AbstractGraph<V, E> graph, V originNode) {
         Optional<AbstractGraph<V, E>.Vertex> optional = graph.getVertex(originNode);
         if (!optional.isPresent())
             return null;
@@ -89,6 +114,14 @@ public abstract class GraphFunctions {
         return distance;
     }
 
+    /**
+     * Verifies if a path exists between the origin node and the destination one
+     *
+     * @param graph           the graph on which to apply the algorithm
+     * @param originNode      node that sets the beginning point of the path
+     * @param destinationNode node that sets the end point of the path
+     * @return true if the path exists, or false if it does not
+     */
     public static <V, E> boolean hasPath(AbstractGraph<V, E> graph, V originNode, V destinationNode) {
         List<V> result = dfs(graph, originNode);
         if (result == null)
@@ -96,7 +129,14 @@ public abstract class GraphFunctions {
         return result.contains(destinationNode);
     }
 
-    public static <V, E> boolean isConnected(AbstractGraph<V, E> graph) {
+    /**
+     * Verifies if the graph is a connected graph. A connected graph is a graph in which it's possible to get from
+     * every vertex in the graph to every other vertex through a series of edges
+     *
+     * @param graph the graph on which to apply the algorithm
+     * @return true if it is connected, false if not
+     */
+    public static <V, E> boolean isConnected(Graph<V, E> graph) {
         if (graph.isEmpty()) {
             return true;
         }
@@ -108,12 +148,19 @@ public abstract class GraphFunctions {
         return vertices.stream().allMatch(vertex -> vertex.visited);
     }
 
-    public static <V, E> int numberOfComponents(AbstractGraph<V, E> graph) {
+    /**
+     * Calculates the number of components in the graph. A component is a subgraph in which any two vertices are
+     * connected to each other by paths, and which is connected to no additional vertices in the supergraph
+     *
+     * @param graph
+     * @return
+     */
+    public static <V, E> int numberOfComponents(Graph<V, E> graph) {
         graph.clearVisit();
         return pathCount(graph);
     }
 
-    private static <V, E> int pathCount(AbstractGraph<V, E> graph) {
+    private static <V, E> int pathCount(Graph<V, E> graph) {
         int count = 0;
         AbstractGraph<V, E>.Vertex vertex;
         while ((vertex = unvisited(graph)) != null) {
@@ -123,7 +170,7 @@ public abstract class GraphFunctions {
         return count;
     }
 
-    private static <V, E> AbstractGraph<V, E>.Vertex unvisited(AbstractGraph<V, E> graph) {
+    private static <V, E> AbstractGraph<V, E>.Vertex unvisited(Graph<V, E> graph) {
         for (AbstractGraph<V, E>.Vertex vertex : graph.getVertices()) {
             if (!vertex.visited)
                 return vertex;
@@ -131,7 +178,15 @@ public abstract class GraphFunctions {
         return null;
     }
 
-    public static <V, E> boolean isCutVertex(AbstractGraph<V, E> graph, V node) {
+    /**
+     * Verifies if a vertex is a cut vertex in a graph. A cut vertex is any vertex whose removal increases the
+     * number of connected components.
+     *
+     * @param graph the graph on which to apply the algorithm
+     * @param node  node to verify if it is a cut vertex
+     * @return true if it is a cut vertex, false if not
+     */
+    public static <V, E> boolean isCutVertex(Graph<V, E> graph, V node) {
         Optional<AbstractGraph<V, E>.Vertex> vertex = graph.getVertex(node).filter(v -> v.edges.size() > 0);
 
         if (!vertex.isPresent())
@@ -143,16 +198,25 @@ public abstract class GraphFunctions {
         return components != pathCount(graph);
     }
 
-    public static <V, E> boolean isBridge(AbstractGraph<V, E> graph, V originNode, V destinationNode) {
-        Optional<AbstractGraph<V, E>.Edge> edge = graph.getEdge(originNode, destinationNode);
+    /**
+     * Verifies if an edge is a bridge. A bridge is an edge of a graph whose deletion increases its number of
+     * connected components.
+     *
+     * @param graph the graph on which to apply the algorithm
+     * @param nodeA one end of the edge
+     * @param nodeB another end of the edge
+     * @return true if the edge is a bridge, false if not
+     */
+    public static <V, E> boolean isBridge(Graph<V, E> graph, V nodeA, V nodeB) {
+        Optional<AbstractGraph<V, E>.Edge> edge = graph.getEdge(nodeA, nodeB);
 
         if (!edge.isPresent()) {
             return false;
         }
         int components = numberOfComponents(graph);
-        graph.disconnectNodes(originNode, destinationNode);
+        graph.disconnectNodes(nodeA, nodeB);
         int newComponents = numberOfComponents(graph);
-        graph.connectNodes(originNode, destinationNode, edge.get().connection);
+        graph.connectNodes(nodeA, nodeB, edge.get().connection);
         return components != newComponents;
     }
 }

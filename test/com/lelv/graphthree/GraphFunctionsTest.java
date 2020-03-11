@@ -1,11 +1,10 @@
 package com.lelv.graphthree;
 
-import com.lelv.graphthree.impl.DirectedGraph;
 import com.lelv.graphthree.impl.Graph;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -25,8 +24,8 @@ public class GraphFunctionsTest {
         assertEquals("[a, b, e, g, f, c, d, h]", result.toString());
     }
 
-    private DirectedGraph<String, MyWeightedEdge> testGraph() {
-        DirectedGraph<String, MyWeightedEdge> graph = new DirectedGraph<>();
+    private Graph<String, MyWeightedEdge> testGraph() {
+        Graph<String, MyWeightedEdge> graph = new Graph<>();
         graph.addNodes("a", "b", "c", "d", "e", "f", "g", "h");
 
         graph.connectNodes("a", "b", new MyWeightedEdge(1));
@@ -41,29 +40,30 @@ public class GraphFunctionsTest {
 
     @Test
     public void dijkstra() {
-        DirectedGraph<String, MyWeightedEdge> graph = testGraph();
+        Graph<String, MyWeightedEdge> graph = testGraph();
 
         graph.connectNodes("a", "g", new MyWeightedEdge(1));
         graph.connectNodes("g", "d", new MyWeightedEdge(1));
         graph.connectNodes("c", "f", new MyWeightedEdge(1));
         graph.connectNodes("e", "d", new MyWeightedEdge(1));
 
-        HashMap<String, Double> result = GraphFunctions.dijkstra(graph, "a");
+        Map<String, Double> result = GraphFunctions.dijkstra(graph, "a");
         assert result != null;
-        assertEquals("{a=0.0, b=1.0, c=2.0, d=2.0, e=5.0, f=3.0, g=1.0, h=9.0}", result.toString());
+        assertEquals("{a=0.0, b=1.0, c=2.0, d=2.0, e=3.0, f=3.0, g=1.0, h=9.0}", result.toString());
     }
 
     @Test
     public void hasPath() {
-        DirectedGraph<String, MyWeightedEdge> graph = testGraph();
+        Graph<String, MyWeightedEdge> graph = testGraph();
+        graph.addNode("z");
 
         assertTrue(GraphFunctions.hasPath(graph, "a", "g"));
-        assertFalse(GraphFunctions.hasPath(graph, "h", "g"));
+        assertFalse(GraphFunctions.hasPath(graph, "h", "z"));
     }
 
     @Test
     public void isConnected() {
-        DirectedGraph<String, MyWeightedEdge> graph = testGraph();
+        Graph<String, MyWeightedEdge> graph = testGraph();
         assertTrue(GraphFunctions.isConnected(graph));
 
         graph.addNode("z");
@@ -72,7 +72,7 @@ public class GraphFunctionsTest {
 
     @Test
     public void numberOfComponents() {
-        DirectedGraph<String, MyWeightedEdge> graph = testGraph();
+        Graph<String, MyWeightedEdge> graph = testGraph();
         assertEquals(1, GraphFunctions.numberOfComponents(graph));
 
         graph.addNodes("x");
@@ -90,7 +90,7 @@ public class GraphFunctionsTest {
 
     @Test
     public void isCutVertex() {
-        DirectedGraph<String, Integer> graph = new DirectedGraph<>();
+        Graph<String, Integer> graph = new Graph<>();
 
         graph.addNodes("a", "b", "c", "d", "e");
         graph.connectNodes("a", "b", 1);
