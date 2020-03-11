@@ -105,7 +105,7 @@ public abstract class AbstractGraph<V, E> {
         }
 
         boolean edgeIsNotDuplicate = originVertex.edges.stream()
-                                                       .noneMatch(e -> e.neighbor.node.equals(destinationNode));
+                                                       .noneMatch(e -> e.destination.node.equals(destinationNode));
 
         if (edgeIsNotDuplicate) {
             originVertex.addNeighbor(connection, destinationVertex);
@@ -124,7 +124,7 @@ public abstract class AbstractGraph<V, E> {
         }
 
         return originVertex.edges.stream()
-                                 .filter(edge -> edge.neighbor.node.equals(destinationNode))
+                                 .filter(edge -> edge.destination.node.equals(destinationNode))
                                  .findFirst()
                                  .map(edge -> {
                                      originVertex.edges.remove(edge);
@@ -159,7 +159,7 @@ public abstract class AbstractGraph<V, E> {
         }
 
         return originVertex.edges.stream()
-                                 .filter(edge -> edge.neighbor.node.equals(destinationNode))
+                                 .filter(edge -> edge.destination.node.equals(destinationNode))
                                  .findFirst();
     }
 
@@ -184,17 +184,17 @@ public abstract class AbstractGraph<V, E> {
 
         public List<Vertex> getNeighbors() {
             return edges.stream()
-                        .map(edge -> edge.neighbor)
+                        .map(edge -> edge.destination)
                         .collect(Collectors.toList());
         }
 
         private void addNeighbor(E connection, Vertex neighbor) {
-            edges.add(new Edge(connection, neighbor));
+            edges.add(new Edge(connection, this, neighbor));
         }
 
         private void removeNeighbor(V neighbor) {
             edges.stream()
-                 .filter(e -> e.neighbor.node.equals(neighbor))
+                 .filter(e -> e.destination.node.equals(neighbor))
                  .findFirst()
                  .ifPresent(e -> edges.remove(e));
         }
@@ -217,11 +217,13 @@ public abstract class AbstractGraph<V, E> {
 
     protected class Edge {
         public final E connection;
-        public final Vertex neighbor;
+        public final Vertex origin;
+        public final Vertex destination;
 
-        Edge(E connection, Vertex neighbor) {
+        Edge(E connection, Vertex origin, Vertex destination) {
             this.connection = connection;
-            this.neighbor = neighbor;
+            this.origin = origin;
+            this.destination = destination;
         }
 
         @Override
@@ -232,13 +234,15 @@ public abstract class AbstractGraph<V, E> {
             Edge edge = (Edge) o;
 
             if (connection != null ? !connection.equals(edge.connection) : edge.connection != null) return false;
-            return neighbor.equals(edge.neighbor);
+            if (!origin.equals(edge.origin)) return false;
+            return destination.equals(edge.destination);
         }
 
         @Override
         public int hashCode() {
             int result = connection != null ? connection.hashCode() : 0;
-            result = 31 * result + neighbor.hashCode();
+            result = 31 * result + origin.hashCode();
+            result = 31 * result + destination.hashCode();
             return result;
         }
     }

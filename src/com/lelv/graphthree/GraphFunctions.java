@@ -38,9 +38,9 @@ public abstract class GraphFunctions {
             vertex = q.poll();
             result.add(vertex.node);
             for (AbstractGraph<V, E>.Edge e : vertex.edges) {
-                if (!e.neighbor.visited) {
-                    q.add(e.neighbor);
-                    e.neighbor.visited = true;
+                if (!e.destination.visited) {
+                    q.add(e.destination);
+                    e.destination.visited = true;
                 }
             }
         }
@@ -72,7 +72,7 @@ public abstract class GraphFunctions {
             for (AbstractGraph<V, E>.Vertex vertex : visited) {
                 Double distToNode = distance.get((V) vertex.node);
                 for (AbstractGraph<V, E>.Edge e : vertex.edges) {
-                    if (!e.neighbor.visited
+                    if (!e.destination.visited
                             && (min == null || e.connection.getWeight().doubleValue() + distToNode < minDist)) {
                         min = e;
                         minDist = e.connection.getWeight().doubleValue() + distToNode;
@@ -80,9 +80,9 @@ public abstract class GraphFunctions {
                 }
             }
             if (min != null) {
-                visited.add(min.neighbor);
-                min.neighbor.visited = true;
-                distance.put(min.neighbor.node, minDist);
+                visited.add(min.destination);
+                min.destination.visited = true;
+                distance.put(min.destination.node, minDist);
             }
         } while (min != null);
 
