@@ -152,8 +152,8 @@ public abstract class GraphFunctions {
      * Calculates the number of components in the graph. A component is a subgraph in which any two vertices are
      * connected to each other by paths, and which is connected to no additional vertices in the supergraph
      *
-     * @param graph
-     * @return
+     * @param graph the graph on which to apply the algorithm
+     * @return the number of components in the graph
      */
     public static <V, E> int numberOfComponents(Graph<V, E> graph) {
         graph.clearVisit();
